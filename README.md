@@ -1,6 +1,8 @@
 # EasyHeC: Accurate and Automatic Hand-eye Calibration via Differentiable Rendering and Space Exploration
 
-This project contains the implementation of our [EasyHeC paper](https://ootts.github.io/easyhec/files/EasyHeC.pdf).
+### [Project Page](https://ootts.github.io/easyhec) | [Paper](https://ootts.github.io/easyhec/files/EasyHeC.pdf)
+
+This project contains the implementation of our EasyHeC paper.
 
 Authors: [Linghao Chen](https://ootts.github.io), [Yuzhe Qin](https://yzqin.github.io/), [Xiaowei Zhou](https://xzhou.me/), [Hao Su](http://ai.ucsd.edu/~haosu/).
 
