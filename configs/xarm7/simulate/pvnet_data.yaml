@@ -1,0 +1,26 @@
+sim_pvnet_data:
+  K: [ [ 9.068051757812500000e+02, 0.000000000000000000e+00, 6.501978759765625000e+02 ],
+       [ 0.000000000000000000e+00, 9.066802978515625000e+02, 3.677142944335937500e+02 ],
+       [ 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00 ] ]
+  min_dist: 1.0
+  max_dist: 2.0
+  min_elev: 0
+  max_elev: 80
+#  n_dist: 10
+#  n_elev: 20
+#  nazim: 50
+  n_dist: 2
+  n_elev: 2
+  nazim: 2
+  trans_noise: [ 0.03 ,0.03, 0.03 ]
+  n_point_light: 10
+  envmaps: [ "Brudslojan","Lycksele3","PiazzaDelPopolo1","Sorsele","FortPoint",
+             "Medborgarplatsen","SaintLazarusChurch","Storforsen4","GoldenGateBridge3",
+             "Nalovardo","SaintPetersSquare2","Yokohama3","Lycksele2","NissiBeach2","SanFrancisco4", ]
+  outdir: "data/xarm7/simulate/pvnet_data/"
+  urdf_path: "assets/xarm7_textured.urdf"
+  add_desk_cube:
+    enable: True
+    half_size: [ 0.5, 0.5, 0.5 ]
+    color: [ 0, 0, 0 ]
+    pose: [ -0.3, 0, -0.5 ]

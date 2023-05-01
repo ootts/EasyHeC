@@ -1,0 +1,3 @@
+[submodule "third_party/xArm-Python-SDK"]
+	path = third_party/xArm-Python-SDK
+	url = https://github.com/xArm-Developer/xArm-Python-SDK.git

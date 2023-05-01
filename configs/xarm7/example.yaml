@@ -1,0 +1,56 @@
+model:
+  meta_architecture: "RBSolver"
+  rbsolver_iter:
+    data_dir: data/xarm7/example
+    use_realarm:
+      enable: True
+      ip: "192.168.1.209" # xarm ip
+      speed: 0.1
+      wait_time: 1 # wait time between arm stop and image capture
+      speed_control: True
+      safety_factor: 6 # safety factor for speed control, the larger, the safer
+      timestep: 0.05
+    pointrend_cfg_file: "configs/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_xarm7_finetune.yaml"
+    pointrend_model_weight: "models/xarm7/model_0084999.pth"
+  rbsolver:
+    mesh_paths: [ "assets/xarm_description/meshes/xarm7/visual/link1.STL",
+                  "assets/xarm_description/meshes/xarm7/visual/link2.STL",
+                  "assets/xarm_description/meshes/xarm7/visual/link3.STL",
+                  "assets/xarm_description/meshes/xarm7/visual/link4.STL",
+                  "assets/xarm_description/meshes/xarm7/visual/link5.STL",
+                  "assets/xarm_description/meshes/xarm7/visual/link6.STL",
+                  "assets/xarm_description/meshes/xarm7/visual/link7.STL", ]
+  space_explorer:
+    sample: 10
+    n_sample_qposes: 1000
+    urdf_path: "assets/xarm7_with_gripper_reduced_dof.urdf"
+    srdf_path: "assets/xarm7_with_gripper_reduced_dof.srdf"
+    move_group: "link_eef"
+    max_dist_constraint:
+      enable: True
+      max_dist: 0.5 # maximum distance between any link and the base
+    collision_check:
+      enable: True
+      planning_time: 0.1
+datasets:
+  train: ("xarm7_real/xarm7/example",)
+  test: "xarm7_real/xarm7/example"
+
+solver:
+  trainer: "rbsolver_iter"
+  log_interval: 100
+  explore_iters: 5 # the number of iterations for exploration
+  num_epochs: 1000 # the number of iterations for optimization
+  max_lr: 0.003 # the learning rate for optimization
+  batch_size: 100 # a large number to make sure all the images are in one batch
+  save_freq: 20
+  val_freq: 20
+  save_every: True
+  save_mode: iteration
+input:
+  shuffle: False
+dataloader:
+  pin_memory: True
+test:
+  batch_size: 100
+

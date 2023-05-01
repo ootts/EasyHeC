@@ -1,0 +1,9 @@
+sim_mask_data:
+  envmaps: [ "Brudslojan","Lycksele3","PiazzaDelPopolo1","Sorsele","FortPoint",
+             "Medborgarplatsen","SaintLazarusChurch","Storforsen4","GoldenGateBridge3",
+             "Nalovardo","SaintPetersSquare2","Yokohama3","Lycksele2","NissiBeach2","SanFrancisco4", ]
+  urdf_path: "assets/xarm7_with_gripper_reduced_dof.urdf"
+  srdf_path: "assets/xarm7_with_gripper_reduced_dof.srdf"
+  move_group: "link_eef"
+  outdir: data/xarm7/simulate/mask_data
+

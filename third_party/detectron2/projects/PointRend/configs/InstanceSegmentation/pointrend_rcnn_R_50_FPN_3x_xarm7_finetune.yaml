@@ -1,0 +1,25 @@
+_BASE_: Base-PointRend-RCNN-FPN.yaml
+MODEL:
+  WEIGHTS: "models/pointrend_rcnn_R_50_FPN_3x_xarm7/model_final.pth"
+  RESNETS:
+    DEPTH: 50
+DATASETS:
+  TRAIN: ("xarm_train_real",)
+  TEST: ("xarm_val_real",)
+INPUT:
+  CROP:
+    ENABLED: True
+  COLOR_AUG_SSD: True
+SOLVER:
+  STEPS: (20000, 50000)
+  MAX_ITER: 100000
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.0003
+  CHECKPOINT_PERIOD: 2500
+# To add COCO AP evaluation against the higher-quality LVIS annotations.
+# DATASETS:
+#   TEST: ("coco_2017_val", "lvis_v0.5_val_cocofied")
+
+OUTPUT_DIR: "models/pointrend_rcnn_R_50_FPN_3x_xarm7_finetune"
+TEST:
+  EVAL_PERIOD: 2500

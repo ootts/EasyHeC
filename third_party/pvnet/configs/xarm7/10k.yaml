@@ -1,0 +1,35 @@
+# wait
+model: 'xarm7'
+model_dir: 'data/model'
+network: 'res'
+heads: ''
+task: 'pvnet'
+gpus: (0, 1, 2, 3)
+#gpus: (0,)
+resume: true
+
+train:
+  optim: 'adam'
+  lr: 1e-3
+  epoch: 240
+  milestones: (20, 40, 60, 80, 100, 120, 160, 180, 200, 220)
+  gamma: 0.5
+  batch_size: 16
+  dataset: 'CustomXArm7_syn_10k_Train'
+  cropresize_rate: 1.0
+  rotate_rate: 1.0
+  rotate_min: -30
+  rotate_max: 30
+  weight_decay: 0.
+  batch_sampler: 'image_size'
+test:
+  dataset: 'CustomXArm7_syn_10k_Test'
+  batch_size: 1
+  batch_sampler: 'image_size'
+custom:
+  data_dir: "../../data/xarm7/simulate/pvnet_data/pvnet_format/train"
+  width: 1280
+  height: 720
+  model_path: "../../assets/xarm7_zeropos.ply"
+
+demo_meta_path: "../../assets/xarm7_meta.npy"

@@ -1,0 +1,20 @@
+link_name_mesh_path_mapping = {
+    'link_base': "assets/xarm_description/meshes/xarm7/visual/link_base.STL",
+    'link1': "assets/xarm_description/meshes/xarm7/visual/link1.STL",
+    'link2': "assets/xarm_description/meshes/xarm7/visual/link2.STL",
+    'link3': "assets/xarm_description/meshes/xarm7/visual/link3.STL",
+    'link4': "assets/xarm_description/meshes/xarm7/visual/link4.STL",
+    'link5': "assets/xarm_description/meshes/xarm7/visual/link5.STL",
+    'link6': "assets/xarm_description/meshes/xarm7/visual/link6.STL",
+    'link7': "assets/xarm_description/meshes/xarm7/visual/link7.STL",
+    'xarm_gripper_base_link': "assets/xarm_gripper/meshes/base_link.STL",
+    'left_outer_knuckle': "assets/xarm_gripper/meshes/left_outer_knuckle.STL",
+    'left_finger': "assets/xarm_gripper/meshes/left_finger.STL",
+    'left_inner_knuckle': "assets/xarm_gripper/meshes/left_inner_knuckle.STL",
+    'right_outer_knuckle': "assets/xarm_gripper/meshes/right_outer_knuckle.STL",
+    'right_finger': "assets/xarm_gripper/meshes/right_finger.STL",
+    'right_inner_knuckle': "assets/xarm_gripper/meshes/right_inner_knuckle.STL",
+    'world': "",
+    'link_eef': "",
+    'link_tcp': ""
+}
