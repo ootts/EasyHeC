@@ -10,6 +10,9 @@ model:
       speed_control: True
       safety_factor: 6 # safety factor for speed control, the larger, the safer
       timestep: 0.05
+      use_sam:
+        enable: True
+        drawer: prompt
     pointrend_cfg_file: "configs/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_xarm7_finetune.yaml"
     pointrend_model_weight: "models/xarm7/model_0084999.pth"
   rbsolver:

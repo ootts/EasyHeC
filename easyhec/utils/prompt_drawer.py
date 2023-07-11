@@ -26,7 +26,6 @@ class DrawingMode(Enum):
 class PromptDrawer(object):
     def __init__(self, window_name="Prompt Drawer", screen_scale=1.0, sam_checkpoint=""):
         self.window_name = window_name  # Name for our window
-        # self.multi_box = True
         self.reset()
         self.screen_scale = screen_scale * 1.2
         self.screen_scale = screen_scale
@@ -47,7 +46,6 @@ class PromptDrawer(object):
     def reset(self):
         self.done = False
         self.drawing = False
-        # self.start = None
         self.current = (0, 0)  # Current position, so we can draw the line-in-progress
         self.box = np.zeros([4], dtype=np.float32)
         self.points = np.empty((0, 2))  # List of points defining our polygon
@@ -65,9 +63,6 @@ class PromptDrawer(object):
         if self.mode == DrawingMode.Box:
             if event == cv2.EVENT_LBUTTONDOWN:
                 self.drawing = True
-                # if not self.multi_box:
-                #     self.box = np.array([x, y, x, y])
-                # else:
                 if flags & cv2.EVENT_FLAG_CTRLKEY:
                     self.box_labels = np.hstack([self.box_labels, 0])
                 else:
@@ -75,19 +70,11 @@ class PromptDrawer(object):
                 self.boxes = np.vstack([self.boxes, [x, y, x, y]])
             elif event == cv2.EVENT_LBUTTONUP:
                 self.drawing = False
-                # if not self.multi_box:
-                #     self.box[2] = x
-                #     self.box[3] = y
-                # else:
                 self.boxes[-1, 2] = x
                 self.boxes[-1, 3] = y
                 self.detect()
             elif event == cv2.EVENT_MOUSEMOVE:
                 if self.drawing:
-                    # if not self.multi_box:
-                    #     self.box[2] = x
-                    #     self.box[3] = y
-                    # else:
                     self.boxes[-1, 2] = x
                     self.boxes[-1, 3] = y
         elif self.mode == DrawingMode.Point:
@@ -111,25 +98,6 @@ class PromptDrawer(object):
         else:
             input_point = None
             input_label = None
-        # if not self.multi_box:
-        #     if np.all(self.box == 0):
-        #         box = None
-        #     else:
-        #         box = self.box / self.ratio
-        #     masks, scores, logits = self.predictor.predict(
-        #         point_coords=input_point,
-        #         point_labels=input_label,
-        #         # mask_input=
-        #         box=box,
-        #         # multimask_output=True,
-        #         multimask_output=False,
-        #         return_logits=self.return_logits,
-        #     )
-        #     maxidx = np.argmax(scores)
-        #     mask = masks[maxidx]
-        #     score = scores[maxidx]
-        #     self.mask = mask.copy()
-        # else:
         final_mask = None
         for i in range(len(self.boxes)):
             box = self.boxes[i]
@@ -156,6 +124,8 @@ class PromptDrawer(object):
                     final_mask = np.logical_or(final_mask, mask)
         if final_mask is not None:
             self.mask = final_mask.copy()
+        elif self.mask is not None:
+            self.mask = np.zeros_like(self.mask)
 
     def run(self, rgb):
         self.rgb = rgb
@@ -238,11 +208,11 @@ if __name__ == "__main__":
     parser.add_argument("--img_paths", type=str, nargs="+", required=True)
     args = parser.parse_args()
     i = 0
-    drawer = PromptDrawer(screen_scale=3.0)
+    drawer = PromptDrawer(screen_scale=3.0,sam_checkpoint="../AAHeC_prerelease/models/sam/sam_vit_h_4b8939.pth")
     while i < len(args.img_paths):
         img_path = args.img_paths[i]
         rgb = imageio.imread_v2(img_path)
-        mask, flag = drawer.run(rgb, window_name=img_path.split("/")[-1])
+        mask, flag = drawer.run(rgb)
         if flag == -1 and i > 0:
             print("redo last image")
             i -= 1
