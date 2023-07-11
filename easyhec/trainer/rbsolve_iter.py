@@ -244,7 +244,7 @@ class RBSolverIterTrainer(BaseTrainer):
                 raise NotImplementedError()
             drawer = Drawer(screen_scale=1.75,
                             sam_checkpoint=self.cfg.model.rbsolver_iter.use_realarm.use_sam.sam_checkpoint)
-            _, _, binary_mask = drawer.run(rgb)
+            _, _, pred_binary_mask = drawer.run(rgb)
         else:
             from easyhec.utils.pointrend_api import pointrend_api
             pred_binary_mask = pointrend_api(config_file, model_weight, image_path)

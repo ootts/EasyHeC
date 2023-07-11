@@ -144,7 +144,6 @@ class PromptDrawer(object):
                 # mask_input=
                 box=box,
                 multimask_output=True,
-                return_logits=self.return_logits,
             )
             maxidx = np.argmax(scores)
             mask = masks[maxidx]
@@ -225,6 +224,8 @@ class PromptDrawer(object):
                     self.box_labels = self.box_labels[:-1]
                     self.detect()
         cv2.destroyWindow(self.window_name)
+        del self.predictor
+        torch.cuda.empty_cache()
         return None, None, self.mask
 
 
