@@ -8,6 +8,9 @@ Authors: [Linghao Chen](https://ootts.github.io), [Yuzhe Qin](https://yzqin.gith
 
 <img src="docs/pipeline_v5.png" width = 100% div align=left />
 
+## Update
+
+- (2023.7.11) New prompt drawer for SAM has been supported! Checkout the newest code for more accurate results without training the PointRend!
 
 ## Requirements
 

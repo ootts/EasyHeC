@@ -25,4 +25,5 @@ screeninfo
 plyfile
 pycocotools
 git+https://github.com/NVlabs/nvdiffrast.git
+git+https://github.com/facebookresearch/segment-anything.git
 

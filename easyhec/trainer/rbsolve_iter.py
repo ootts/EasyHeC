@@ -27,6 +27,7 @@ from easyhec.trainer.utils import *
 from easyhec.utils import plt_utils
 from easyhec.utils.os_utils import archive_runs
 from easyhec.utils.point_drawer import PointDrawer
+from easyhec.utils.prompt_drawer import PromptDrawer
 from easyhec.utils.realsense_api import RealSenseAPI
 from easyhec.utils.vis3d_ext import Vis3D
 
@@ -235,9 +236,15 @@ class RBSolverIterTrainer(BaseTrainer):
         model_weight = osp.join(POINTREND_DIR, pointrend_model_weight)
         image_path = osp.join(outdir, f"color/{index:06d}.png")
         if self.cfg.model.rbsolver_iter.use_realarm.use_sam.enable is True:
-            point_drawer = PointDrawer(screen_scale=1.75,
-                                       sam_checkpoint=self.cfg.model.rbsolver_iter.use_realarm.use_sam.sam_checkpoint)
-            _, _, binary_mask = point_drawer.run(rgb)
+            if self.cfg.model.rbsolver_iter.use_realarm.use_sam.drawer == "point":
+                Drawer = PointDrawer
+            elif self.cfg.model.rbsolver_iter.use_realarm.use_sam.drawer == "prompt":
+                Drawer = PromptDrawer
+            else:
+                raise NotImplementedError()
+            drawer = Drawer(screen_scale=1.75,
+                            sam_checkpoint=self.cfg.model.rbsolver_iter.use_realarm.use_sam.sam_checkpoint)
+            _, _, pred_binary_mask = drawer.run(rgb)
         else:
             from easyhec.utils.pointrend_api import pointrend_api
             pred_binary_mask = pointrend_api(config_file, model_weight, image_path)

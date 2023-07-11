@@ -5,9 +5,9 @@
 # Support other robot arms
 
 ​	To support other robot arms, you need to do the following things.
-	1) Since we don't have other types of robot arms in our lab, you need to a) tune the textures of the robot model, b) define the [mesh_mapping](../easyhec/structures/xarm_mapping.py), c) modify the control code, and d) write the [render_api](../easyhec/utils/render_api.py#L136) for your robot.
-	2) Obtain the segmentation network.
-	3) Initialize the camera pose.
+​	1) Since we don't have other types of robot arms in our lab, you need to a) tune the textures of the robot model, b) define the [mesh_mapping](../easyhec/structures/xarm_mapping.py), c) modify the control code, and d) write the [render_api](../easyhec/utils/render_api.py#L136) for your robot.
+​	2) Obtain the segmentation network.
+​	3) Initialize the camera pose.
 
 ## 1. Obtain Segmentation mask
 
@@ -65,10 +65,10 @@ We provide two approaches to obtain the segmentation mask: 1) Train a PointRend,
 mkdir -p models/sam/ && wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth -O models/sam/sam_vit_h_4b8939.pth
 ```
 
-2. Run EasyHeC with the following command.
+2. Run EasyHeC with the following command. The prompt drawer released on 2023.7.11 allows you to draw multiple boxes and take the union of them as the robot mask. Press "z" to undo, "p" to switch to the point prompt mode, and "b" to switch to the bounding box prompt mode. Although the point prompt is supported, we recommend using the bounding box prompt since it's more stable than the point prompt.
 
 ```bash
-python tools/run_easyhec.py -c configs/xarm7/example.yaml model.rbsolver_iter.use_realarm.use_sam True
+python tools/run_easyhec.py -c configs/xarm7/example_sam.yaml
 ```
 
 ## 2. Initialize the camera pose
