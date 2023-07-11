@@ -123,6 +123,7 @@ _C.model.rbsolver_iter.use_realarm.safety_factor = 3
 _C.model.rbsolver_iter.use_realarm.use_sam = CN()
 _C.model.rbsolver_iter.use_realarm.use_sam.enable = False  # use SAM to predict mask
 _C.model.rbsolver_iter.use_realarm.use_sam.sam_checkpoint = "models/sam/sam_vit_h_4b8939.pth"
+_C.model.rbsolver_iter.use_realarm.use_sam.drawer = "point"
 
 _C.model.rbsolver_iter.pointrend_cfg_file = "configs/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_xarm.yaml"
 _C.model.rbsolver_iter.pointrend_model_weight = "output/model_0099999.pth"
