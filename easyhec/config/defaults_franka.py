@@ -64,10 +64,7 @@ _C.model.meta_architecture = ""
 _C.model.device = "cuda"
 
 _C.model.rbsolver = CN()
-_C.model.rbsolver.init_Tc_c2b = 	 [[-0.9954871,   0.01794235,  0.09318464 ,-0.06332837],
-                                    [-0.09197256,  0.05944902, -0.99398535, 0.7683997 ],
-                                    [-0.02337416, -0.99807006, -0.05753052,  0.5498063 ],
-                                    [ 0.,          0. ,         0.    ,      1.        ]]
+_C.model.rbsolver.init_Tc_c2b = []
 _C.model.rbsolver.start_qpos = [5.928617003472516e-05,
                                     -0.7848036409260933,
                                     -0.000308854746172659,
@@ -94,7 +91,7 @@ _C.model.space_explorer = CN()
 _C.model.space_explorer.qpos_choices_pad_left = 0
 _C.model.space_explorer.qpos_choices_pad_right = 0
 
-_C.model.space_explorer.start = 400
+_C.model.space_explorer.start = 40
 _C.model.space_explorer.sample = 10  # num camera sampled
 _C.model.space_explorer.n_sample_qposes = 100  # for random
 _C.model.space_explorer.sample_dof = 6
@@ -130,10 +127,10 @@ _C.model.rbsolver_iter.start_qpos = [5.928617003472516e-05,
                                     1.570464383098814,
                                     0.7852387161304554]
 _C.model.rbsolver_iter.start_index = 0  # for data pool
-_C.model.rbsolver_iter.init_Tc_c2b =      [[-0.9954871,   0.01794235,  0.09318464 ,-0.06332837],
-                                          [-0.09197256,  0.05944902, -0.99398535, 0.7683997 ],
-                                          [-0.02337416, -0.99807006, -0.05753052,  0.5498063 ],
-                                          [ 0.,          0. ,         0.    ,      1.        ]]
+_C.model.rbsolver_iter.init_Tc_c2b =      [[-0.99548723, -0.09197257, -0.02337417,  0.02048038],
+                                    [ 0.01794234,  0.05944901, -0.9980701,   0.50420089],
+                                    [ 0.09318464, -0.99398534, -0.05753053, 0.80130991],
+                                    [ 0.,          0.,          0.,          1.        ]]
 
 _C.model.rbsolver_iter.use_realarm = CN()
 _C.model.rbsolver_iter.use_realarm.enable = True

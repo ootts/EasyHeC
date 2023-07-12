@@ -83,7 +83,6 @@ class SpaceExplorer(nn.Module):
         width, height = self.cfg.width, self.cfg.height
         K = np.array(self.cfg.K)
         history_Tc_c2b = utils_3d.se3_exp_map(history_dof6).permute(0, 2, 1).numpy()
-        print(history_Tc_c2b)
         history_Tc_c2b, _ = random_choice(history_Tc_c2b,
                                           size=self.cfg.sample,
                                           dim=0, replace=False)
@@ -137,7 +136,7 @@ class SpaceExplorer(nn.Module):
                 else:
                     plan_results[qpos_idx] = result
             elif self.total_cfg.use_xarm is False:
-                rest_pose = np.array( ## Avoid achieving frnaka emika panda joint limits, so use fractioning
+                rest_pose = np.array( ## Avoid achieving franka emika panda joint limits, so use fractioning
                                         [5.928617003472516e-05,
                                         -0.7848036409260933,
                                         -0.000308854746172659,
@@ -148,12 +147,12 @@ class SpaceExplorer(nn.Module):
                                         0.3,
                                         0.3]
                                     )
-                target = (np.array(qpos) - rest_pose) / 2 + rest_pose
+                target = (np.array(qpos) - rest_pose) / 2.3 + rest_pose
                 plan_results[qpos_idx] = {"position":target.tolist()}
             masks = []
             for cam_pose in tqdm.tqdm(history_cam_poses, leave=False, disable="PYCHARM_HOSTED" in os.environ):
                 rendered_mask = render_api.nvdiffrast_parallel_render_xarm_api(self.cfg.urdf_path,
-                                                                               cam_pose,
+                                                                               np.linalg.inv(cam_pose),
                                                                                qpos[:7] + [0, 0],
                                                                                height, width,
                                                                                to_array(K),

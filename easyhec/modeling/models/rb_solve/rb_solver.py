@@ -29,7 +29,6 @@ class RBSolver(nn.Module):
         self.nlinks = len(mesh_paths)
         # camera parameters
         init_Tc_c2b = self.cfg.init_Tc_c2b
-        logger.info("self.init_Tc_c2b is {}".format(init_Tc_c2b))
         init_dof = se3_log_map(torch.as_tensor(init_Tc_c2b, dtype=torch.float32)[None].permute(0, 2, 1), eps=1e-5,
                                backend="opencv")[0]
         self.dof = nn.Parameter(init_dof, requires_grad=True)
@@ -51,8 +50,6 @@ class RBSolver(nn.Module):
         put_id = (self.history_ops == 0).all(dim=1).nonzero()[0, 0].item()
         self.history_ops[put_id] = self.dof.detach()
         Tc_c2b = se3_exp_map(self.dof[None]).permute(0, 2, 1)[0]
-        logger.info("the tc_c2b is {}".format(Tc_c2b))
-        Tc_c2b = torch.linalg.inv(Tc_c2b)
         losses = []
         all_frame_all_link_si = []
         masks_ref = dps['mask']

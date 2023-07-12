@@ -54,7 +54,6 @@ def main():
         cfg = cfg_xarm
         cfg.use_xarm = True
 
-    args.config_file = "configs/franka/franka.yaml"
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     if cfg.output_dir == '':

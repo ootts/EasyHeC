@@ -333,9 +333,8 @@ class RBSolverIterTrainer(BaseTrainer):
             nums = "".join(output[-4:]).replace("[", " ").replace("]", " ").replace(",", " ").strip().split()
             init_Tc_c2b = np.array(list((map(float, nums)))).reshape(4, 4)
         else:
-            output = self.cfg.rbsolver_iter.init_Tc_c2b
+            output = self.cfg.model.rbsolver_iter.init_Tc_c2b
             init_Tc_c2b = np.array(output).reshape(4, 4)
-            init_Tc_c2b = np.linalg.inv(init_Tc_c2b)
         self.cfg.defrost()
         self.cfg.model.rbsolver.init_Tc_c2b = init_Tc_c2b.tolist()
         self.cfg.freeze()
