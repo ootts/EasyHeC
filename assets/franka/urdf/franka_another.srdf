@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot>
+ <disable_collisions link1="panda_link0" link2="panda_link1" reason="Adjacent"/>
+ <disable_collisions link1="panda_link1" link2="panda_link2" reason="Adjacent"/>
+ <disable_collisions link1="panda_link2" link2="panda_link3" reason="Adjacent"/>
+ <disable_collisions link1="panda_link3" link2="panda_link4" reason="Adjacent"/>
+ <disable_collisions link1="panda_link4" link2="panda_link5" reason="Adjacent"/>
+ <disable_collisions link1="panda_link5" link2="panda_link6" reason="Adjacent"/>
+ <disable_collisions link1="panda_link6" link2="panda_link7" reason="Adjacent"/>
+ <disable_collisions link1="panda_link7" link2="panda_link8" reason="Adjacent"/>
+ <disable_collisions link1="panda_link8" link2="panda_hand" reason="Adjacent"/>
+ <disable_collisions link1="panda_hand" link2="panda_leftfinger" reason="Adjacent"/>
+ <disable_collisions link1="panda_hand" link2="panda_rightfinger" reason="Adjacent"/>
+ <disable_collisions link1="panda_link1" link2="panda_link2" reason="Default"/>
+ <disable_collisions link1="panda_link5" link2="panda_link6" reason="Default"/>
+ <disable_collisions link1="panda_link3" link2="panda_link4" reason="Default"/>
+ <disable_collisions link1="panda_hand" link2="panda_leftfinger" reason="Default"/>
+ <disable_collisions link1="panda_hand" link2="panda_rightfinger" reason="Default"/>
+</robot>

@@ -1,6 +1,6 @@
 import numpy as np
 import sapien.core as sapien
-
+import mplib
 
 class CollisionChecker:
     def __init__(self, cfg):
@@ -19,7 +19,7 @@ class CollisionChecker:
 
         link_names = [link.get_name() for link in self.robot.get_links()]
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
-        import mplib
+
         self.planner = mplib.Planner(
             urdf=urdf_path,
             srdf=srdf_path,

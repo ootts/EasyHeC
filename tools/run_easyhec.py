@@ -9,8 +9,7 @@ import numpy as np
 import torch
 import torch.multiprocessing
 from dl_ext.timer import EvalTime
-
-from easyhec.config import cfg
+from easyhec.config import cfg_xarm, cfg_franka
 from easyhec.engine.defaults import default_argument_parser
 from easyhec.trainer.build import build_trainer
 from easyhec.utils.comm import synchronize, get_rank
@@ -36,6 +35,7 @@ def main():
     parser = default_argument_parser()
     parser.add_argument('--init_method', default='env://', type=str)
     parser.add_argument('--no_archive', default=False, action='store_true')
+    parser.add_argument('--use_franka', default=False, action='store_true')
     args = parser.parse_args()
     num_gpus = int(os.environ["WORLD_SIZE"]) if "WORLD_SIZE" in os.environ else 1
     args.distributed = num_gpus > 1
@@ -47,7 +47,14 @@ def main():
             backend='nccl', init_method=args.init_method,
             rank=local_rank, world_size=num_gpus)
         synchronize()
+    if args.use_franka is True:
+        cfg = cfg_franka
+        cfg.use_xarm = False
+    else:
+        cfg = cfg_xarm
+        cfg.use_xarm = True
 
+    args.config_file = "configs/franka/franka.yaml"
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     if cfg.output_dir == '':

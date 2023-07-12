@@ -27,7 +27,6 @@ from easyhec.trainer.utils import *
 from easyhec.utils import plt_utils
 from easyhec.utils.os_utils import archive_runs
 from easyhec.utils.point_drawer import PointDrawer
-from easyhec.utils.prompt_drawer import PromptDrawer
 from easyhec.utils.realsense_api import RealSenseAPI
 from easyhec.utils.vis3d_ext import Vis3D
 
@@ -50,7 +49,7 @@ class RBSolverIterTrainer(BaseTrainer):
         self.best_val_loss = 100000
         self.val_loss = 100000
         self.qposes = np.array(self.cfg.model.rbsolver_iter.start_qpos)[None]
-        if self.cfg.model.rbsolver_iter.use_realarm.enable is True:
+        if self.cfg.model.rbsolver_iter.use_realarm.enable is True and self.cfg.use_xarm is True:
             ip = self.cfg.model.rbsolver_iter.use_realarm.ip
             from xarm import XArmAPI
             arm = XArmAPI(ip)
@@ -58,6 +57,11 @@ class RBSolverIterTrainer(BaseTrainer):
             arm.set_mode(0)
             arm.set_state(state=0)
             self.arm = arm
+        elif self.cfg.use_xarm is False:
+            from easyhec.frankaAPI import MoveGroupPythonInterfaceTutorial
+            self.arm = MoveGroupPythonInterfaceTutorial()
+            self.arm.go_to_rest_pose()
+
 
     def train(self, epoch):
         loss_meter = AverageMeter()
@@ -184,32 +188,39 @@ class RBSolverIterTrainer(BaseTrainer):
         vis3d.add_xarm(qpose.tolist() + [0, 0])
         arm = self.arm
         speed = self.cfg.model.rbsolver_iter.use_realarm.speed
-        if len(self.qposes) == 1:
-            arm.set_servo_angle(angle=qpose, is_radian=True, speed=speed, wait=True)
-        else:
-            plan_qposes = self.plan_result['position']
-            if not self.cfg.model.rbsolver_iter.use_realarm.speed_control:
-                for plan_qpose in tqdm.tqdm(plan_qposes):
-                    arm.set_servo_angle(angle=plan_qpose, is_radian=True, speed=speed, wait=True)
+        if self.cfg.model.rbsolver_iter.use_realarm.enable is True and self.cfg.use_xarm is True:
+            if len(self.qposes) == 1:
+                arm.set_servo_angle(angle=qpose, is_radian=True, speed=speed, wait=True)
             else:
-                safety_factor = self.cfg.model.rbsolver_iter.use_realarm.safety_factor
-                timestep = self.cfg.model.rbsolver_iter.use_realarm.timestep
-                arm.set_mode(4)
-                arm.set_state(state=0)
-                time.sleep(1)
-                if 'PYCHARM_HOSTED' not in os.environ:
-                    input("Please visualize the next joint pose in Wis3D and press Enter to drive the robot...")
-                for ti, target_qpos in enumerate(tqdm.tqdm(plan_qposes)):
-                    code, joint_state = arm.get_joint_states(is_radian=True)
-                    joint_pos = joint_state[0][:7]
-                    diff = target_qpos[:7] - joint_pos
-                    qvel = diff / timestep / safety_factor
-                    qvel_cliped = np.clip(qvel, -0.3, 0.3)
-                    arm.vc_set_joint_velocity(qvel_cliped, is_radian=True, is_sync=True, duration=timestep)
-                    time.sleep(timestep)
-                arm.set_mode(0)
-                time.sleep(1)
-        time.sleep(self.cfg.model.rbsolver_iter.use_realarm.wait_time)
+                plan_qposes = self.plan_result['position']
+                if not self.cfg.model.rbsolver_iter.use_realarm.speed_control:
+                    for plan_qpose in tqdm.tqdm(plan_qposes):
+                        arm.set_servo_angle(angle=plan_qpose, is_radian=True, speed=speed, wait=True)
+                else:
+                    safety_factor = self.cfg.model.rbsolver_iter.use_realarm.safety_factor
+                    timestep = self.cfg.model.rbsolver_iter.use_realarm.timestep
+                    arm.set_mode(4)
+                    arm.set_state(state=0)
+                    time.sleep(1)
+                    if 'PYCHARM_HOSTED' not in os.environ:
+                        input("Please visualize the next joint pose in Wis3D and press Enter to drive the robot...")
+                    for ti, target_qpos in enumerate(tqdm.tqdm(plan_qposes)):
+                        code, joint_state = arm.get_joint_states(is_radian=True)
+                        joint_pos = joint_state[0][:7]
+                        diff = target_qpos[:7] - joint_pos
+                        qvel = diff / timestep / safety_factor
+                        qvel_cliped = np.clip(qvel, -0.3, 0.3)
+                        arm.vc_set_joint_velocity(qvel_cliped, is_radian=True, is_sync=True, duration=timestep)
+                        time.sleep(timestep)
+                    arm.set_mode(0)
+                    time.sleep(1)
+            time.sleep(self.cfg.model.rbsolver_iter.use_realarm.wait_time)
+        elif self.cfg.use_xarm is False:
+            if len(self.qposes) == 1:
+                arm.set_servo_angle(angle=qpose)
+            else:
+                plan_qposes = self.plan_result['position']
+                self.arm.set_servo_angle(angle = plan_qposes)
 
         # capture data
         rgb, K = RealSenseAPI.capture_data()
@@ -236,15 +247,10 @@ class RBSolverIterTrainer(BaseTrainer):
         model_weight = osp.join(POINTREND_DIR, pointrend_model_weight)
         image_path = osp.join(outdir, f"color/{index:06d}.png")
         if self.cfg.model.rbsolver_iter.use_realarm.use_sam.enable is True:
-            if self.cfg.model.rbsolver_iter.use_realarm.use_sam.drawer == "point":
-                Drawer = PointDrawer
-            elif self.cfg.model.rbsolver_iter.use_realarm.use_sam.drawer == "prompt":
-                Drawer = PromptDrawer
-            else:
-                raise NotImplementedError()
-            drawer = Drawer(screen_scale=1.75,
-                            sam_checkpoint=self.cfg.model.rbsolver_iter.use_realarm.use_sam.sam_checkpoint)
-            _, _, pred_binary_mask = drawer.run(rgb)
+            point_drawer = PointDrawer(screen_scale=1.75,
+                                       sam_checkpoint=self.cfg.model.rbsolver_iter.use_realarm.use_sam.sam_checkpoint)
+            _, _, binary_mask = point_drawer.run(rgb)
+            pred_binary_mask = binary_mask.astype(np.uint8)
         else:
             from easyhec.utils.pointrend_api import pointrend_api
             pred_binary_mask = pointrend_api(config_file, model_weight, image_path)
@@ -288,7 +294,7 @@ class RBSolverIterTrainer(BaseTrainer):
         return torch.empty([])
 
     def reset_to_zero_qpos(self):
-        if self.cfg.model.rbsolver_iter.use_realarm.enable is True:
+        if self.cfg.model.rbsolver_iter.use_realarm.enable is True and self.cfg.use_xarm is True:
             arm = self.arm
             speed = self.cfg.model.rbsolver_iter.use_realarm.speed
             plan_qposes = self.plan_result['position']
@@ -312,17 +318,24 @@ class RBSolverIterTrainer(BaseTrainer):
                 arm.set_mode(0)
                 time.sleep(1)
                 print()
+        elif self.cfg.use_xarm is False:
+            self.arm.go_to_rest_pose()
 
     def initialize_Tc_c2b(self):
-        cmd = f"cd {osp.abspath('.')}/third_party/pvnet && " \
-              f"{sys.executable} run_demo_xarm7.py -c configs/xarm7/10k.yaml " \
-              "demo_dir ../../data/xarm7/example" \
-              " demo_pattern 'color/*png'" \
-              " dbg True" \
-              f" custom.K '{self.K.tolist()}'"
-        output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip().split('\n')
-        nums = "".join(output[-4:]).replace("[", " ").replace("]", " ").replace(",", " ").strip().split()
-        init_Tc_c2b = np.array(list((map(float, nums)))).reshape(4, 4)
+        if self.cfg.use_xarm is True:
+            cmd = f"cd {osp.abspath('.')}/third_party/pvnet && " \
+                f"{sys.executable} run_demo_xarm7.py -c configs/xarm7/10k.yaml " \
+                "demo_dir ../../data/xarm7/example" \
+                " demo_pattern 'color/*png'" \
+                " dbg True" \
+                f" custom.K '{self.K.tolist()}'"
+            output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip().split('\n')
+            nums = "".join(output[-4:]).replace("[", " ").replace("]", " ").replace(",", " ").strip().split()
+            init_Tc_c2b = np.array(list((map(float, nums)))).reshape(4, 4)
+        else:
+            output = self.cfg.rbsolver_iter.init_Tc_c2b
+            init_Tc_c2b = np.array(output).reshape(4, 4)
+            init_Tc_c2b = np.linalg.inv(init_Tc_c2b)
         self.cfg.defrost()
         self.cfg.model.rbsolver.init_Tc_c2b = init_Tc_c2b.tolist()
         self.cfg.freeze()
