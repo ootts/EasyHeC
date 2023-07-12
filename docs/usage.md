@@ -66,5 +66,8 @@ python tools/run_easyhec.py -c configs/xarm7/example.yaml
    ```
    
    
+### 6. Add Franka Emika robot Support
 
+1. Before running it on Franka, you may need to read the [tutorial](https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html) here to have a more clear view of manipulating Franka in `ROS` and `MoveIt`.
+1. We initialize the camera pose by running [easy_handeye](https://github.com/IFL-CAMP/easy_handeye) in cope with `ROS` and `MoveIt`. After finishing the camera caliberating procedure, modify the initial camera pose in the [example_franka.yaml](../easyhec/config/defaults_franka.py#L130).
  
