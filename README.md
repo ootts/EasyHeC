@@ -11,6 +11,7 @@ Authors: [Linghao Chen](https://ootts.github.io), [Yuzhe Qin](https://yzqin.gith
 ## Update
 
 - (2023.7.11) New prompt drawer for SAM has been supported! Checkout the newest code for more accurate results without training the PointRend!
+- (2023.7.13) Franka Emika robot has been supported! Thanks to [Minghao Liu](https://github.com/Learner209) for contribution!
 
 ## Requirements
 
