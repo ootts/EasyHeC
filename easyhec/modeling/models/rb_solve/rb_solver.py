@@ -10,6 +10,7 @@ from easyhec.utils import utils_3d
 from easyhec.utils.utils_3d import se3_log_map, se3_exp_map
 from easyhec.utils.vis3d_ext import Vis3D
 
+from loguru import logger
 
 class RBSolver(nn.Module):
     def __init__(self, cfg):
@@ -20,7 +21,7 @@ class RBSolver(nn.Module):
         self.dbg = self.total_cfg.dbg
         mesh_paths = self.cfg.mesh_paths
         for link_idx, mesh_path in enumerate(mesh_paths):
-            mesh = trimesh.load(osp.expanduser(mesh_path))
+            mesh = trimesh.load(osp.expanduser(mesh_path), force = 'mesh')
             vertices = torch.from_numpy(mesh.vertices).float()
             faces = torch.from_numpy(mesh.faces).int()
             self.register_buffer(f'vertices_{link_idx}', vertices)

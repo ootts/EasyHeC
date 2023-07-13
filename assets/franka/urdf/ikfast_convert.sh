@@ -1,0 +1,2 @@
+#!/bin/sh
+python `openrave-config --python-dir`/openravepy/_openravepy_/ikfast.py --robot=franka_convert.dae --iktype=transform6d --baselink=0 --freeindex=1 --eelink=8 --savefile=$(pwd)/ikfast70_franka.cpp

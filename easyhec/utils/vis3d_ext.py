@@ -585,7 +585,7 @@ class Vis3D(Wis3D):
     def xarm_sk(self):
         if Vis3D._xarm_sk is None:
             from easyhec.structures.sapien_kin import SAPIENKinematicsModelStandalone
-            urdf_path = "/home/linghao/PycharmProjects/cam_robot_calib/data/xarm7_with_gripper_reduced_dof.urdf"
+            urdf_path = os.path.abspath("assets/xarm7_with_gripper_reduced_dof.urdf")
             sk = SAPIENKinematicsModelStandalone(urdf_path)
             Vis3D._xarm_sk = sk
         return Vis3D._xarm_sk

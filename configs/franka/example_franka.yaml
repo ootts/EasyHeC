@@ -1,0 +1,58 @@
+model:
+  meta_architecture: "RBSolver"
+  rbsolver_iter:
+    data_dir: data/franka/example
+    use_realarm:
+      enable: True
+      ip: "172.16.0.2" # xarm ip
+      speed: 0.1
+      wait_time: 1 # wait time between arm stop and image capture
+      speed_control: True
+      safety_factor: 6 # safety factor for speed control, the larger, the safer
+      timestep: 0.05
+    pointrend_cfg_file: "configs/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_xarm7_finetune.yaml"
+    pointrend_model_weight: "models/xarm7/model_0084999.pth"
+  rbsolver:
+      mesh_paths: [ 
+      "assets/franka/franka_description/meshes/visual/link1.dae",
+      "assets/franka/franka_description/meshes/visual/link2.dae",
+      "assets/franka/franka_description/meshes/visual/link3.dae",
+      "assets/franka/franka_description/meshes/visual/link4.dae",
+      "assets/franka/franka_description/meshes/visual/link5.dae",
+      "assets/franka/franka_description/meshes/visual/link6.dae",
+      "assets/franka/franka_description/meshes/visual/link7.dae",
+                  ]
+  space_explorer:
+    sample: 10
+    n_sample_qposes: 100
+    urdf_path: "assets/franka/urdf/franka_another.urdf"
+    srdf_path: ""
+    move_group: "panda_hand"
+    max_dist_constraint:
+      enable: True
+      max_dist: 0.5 # maximum distance between any link and the base
+    collision_check:
+      enable: True
+      planning_time: 0.1
+datasets:
+  train: ("franka_real/franka/example",)
+  test: "franka_real/franka/example"
+
+solver:
+  trainer: "rbsolver_iter"
+  log_interval: 100
+  explore_iters: 10 # the number of iterations for exploration
+  num_epochs: 100 # the number of iterations for optimization
+  max_lr: 0.003 # the learning rate for optimization
+  batch_size: 100 # a large number to make sure all the images are in one batch
+  save_freq: 20
+  val_freq: 20
+  save_every: True
+  save_mode: iteration
+input:
+  shuffle: False
+dataloader:
+  pin_memory: True
+test:
+  batch_size: 100
+

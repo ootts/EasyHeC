@@ -301,7 +301,8 @@ def point_plane_distance_api(pts, plane_model):
 
 
 def se3_exp_map(log_transform: torch.Tensor, eps: float = 1e-4):
-    return pytorch3d.transforms.se3.se3_exp_map(log_transform, eps)
+    from .pytorch3d_se3 import se3_exp_map
+    return se3_exp_map(log_transform, eps)
 
 
 def se3_log_map(transform: torch.Tensor, eps: float = 1e-4, cos_bound: float = 1e-4, backend=None,
@@ -314,7 +315,7 @@ def se3_log_map(transform: torch.Tensor, eps: float = 1e-4, cos_bound: float = 1
     if backend == 'pytorch3d':
         dof6 = pytorch3d.transforms.se3.se3_log_map(transform, eps, cos_bound)
     elif backend == 'opencv':
-        from pytorch3d.transforms.se3 import _se3_V_matrix, _get_se3_V_input
+        from .pytorch3d_se3 import _se3_V_matrix, _get_se3_V_input
         # from pytorch3d.common.compat import solve
         log_rotation = []
         for tsfm in transform:

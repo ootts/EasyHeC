@@ -10,7 +10,7 @@ from pytorch3d.structures import Meshes
 from easyhec.structures.nvdiffrast_renderer import NVDiffrastRenderer
 from easyhec.structures.sapien_kin import SAPIENKinematicsModelStandalone
 from easyhec.utils.utils_3d import matrix_3x4_to_4x4, create_center_radius, transform_points
-
+from easyhec.structures.robot_mapping import robot_mapping
 
 class NVdiffrastRenderMeshApiHelper:
     _renderer = None
@@ -101,13 +101,16 @@ class RenderXarmApiHelper:
     _urdf_path = None
 
     @staticmethod
-    def get_meshes():
+    def get_meshes(robot_type = 0):
         if RenderXarmApiHelper.meshes is None:
             RenderXarmApiHelper.meshes = {}
-            from easyhec.structures.xarm_mapping import link_name_mesh_path_mapping
+            if robot_mapping[robot_type] == "Franka":
+                from easyhec.structures.franka_mapping import link_name_mesh_path_mapping
+            elif robot_mapping[robot_type] == "Xarm":
+                from easyhec.structures.xarm_mapping import link_name_mesh_path_mapping
             for k, v in link_name_mesh_path_mapping.items():
                 if v != "":
-                    RenderXarmApiHelper.meshes[k] = trimesh.load_mesh(v)
+                    RenderXarmApiHelper.meshes[k] = trimesh.load(v, force="mesh")
         return RenderXarmApiHelper.meshes
 
     @staticmethod
@@ -118,13 +121,14 @@ class RenderXarmApiHelper:
         return RenderXarmApiHelper.sk
 
 
-def nvdiffrast_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, return_ndarray=True):
-    xarm_meshes = RenderXarmApiHelper.get_meshes()
+def nvdiffrast_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, robot_type = 1, return_ndarray=True):
+    xarm_meshes = RenderXarmApiHelper.get_meshes(robot_type=robot_type)
     sk = RenderXarmApiHelper.get_sk(urdf_path)
     names = [link.name for link in sk.robot.get_links()]
     poses = []
     meshes = []
-    for i in range(8):
+    num = 8 if robot_mapping[robot_type] == "Xarm" else 7
+    for i in range(num):
         pose = robot_pose @ sk.compute_forward_kinematics(qpos, i + 1).to_transformation_matrix()
         mesh = xarm_meshes[names[i + 1]]
         meshes.append(mesh)
@@ -133,13 +137,14 @@ def nvdiffrast_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, return_ndar
     return mask
 
 
-def nvdiffrast_parallel_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, return_ndarray=True):
-    xarm_meshes = RenderXarmApiHelper.get_meshes()
+def nvdiffrast_parallel_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, robot_type = 1, return_ndarray=True):
+    xarm_meshes = RenderXarmApiHelper.get_meshes(robot_type=robot_type)
     sk = RenderXarmApiHelper.get_sk(urdf_path)
     names = [link.name for link in sk.robot.get_links()]
     poses = []
     meshes = []
-    for i in range(8):
+    num = 8 if robot_mapping[robot_type] == "Xarm" else 7
+    for i in range(num):
         pose = robot_pose @ sk.compute_forward_kinematics(qpos, i + 1).to_transformation_matrix()
         mesh = xarm_meshes[names[i + 1]]
         meshes.append(mesh)

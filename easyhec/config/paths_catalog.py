@@ -10,10 +10,23 @@ class DatasetCatalog(object):
     def get(name: str):
         if name.startswith("xarm7_real"):
             return get_xarm7_real(name)
-        raise RuntimeError("Dataset not available: {}".format(name))
+        elif name.startswith("franka_real"):
+            return get_franka_real(name)
+        else:
+            raise RuntimeError("Dataset not available: {}".format(name))
 
 
 def get_xarm7_real(name):
+    items = name.split("/")[1:]
+    data_dir = osp.join("data", "/".join(items))
+    return dict(
+        factory='XarmRealDataset',
+        args={'data_dir': data_dir,
+              'ds_len': -1,
+              }
+    )
+
+def get_franka_real(name):
     items = name.split("/")[1:]
     data_dir = osp.join("data", "/".join(items))
     return dict(

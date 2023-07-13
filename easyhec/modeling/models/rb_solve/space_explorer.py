@@ -102,13 +102,13 @@ class SpaceExplorer(nn.Module):
             qpos = [0] * self.cfg.qpos_choices_pad_left + qpos.tolist() + [0] * self.cfg.qpos_choices_pad_right
             robot.set_qpos(np.array(qpos, dtype=np.float32))
             vis3d.add_xarm(qpos)
-            if self.cfg.self_collision_check.enable:
+            if self.cfg.self_collision_check.enable and self.total_cfg.use_xarm is True:
                 self_collision = self.pymp_planner.robot.computeCollisions(qpos)
                 if self_collision:
                     variances.append(0)
                     n_self_collision += 1
                     continue
-            if self.cfg.max_dist_constraint.enable is True:
+            if self.cfg.max_dist_constraint.enable is True and self.total_cfg.use_xarm is True:
                 vis3d.add_spheres(self.max_dist_center, radius=self.cfg.max_dist_constraint.max_dist)
                 exceed_max_dist_constraint = False
                 for link in range(len(self.sk.robot.get_links())):
@@ -120,7 +120,7 @@ class SpaceExplorer(nn.Module):
                     variances.append(0)
                     n_exceed_max_dist += 1
                     continue
-            if self.cfg.collision_check.enable:
+            if self.cfg.collision_check.enable and self.total_cfg.use_xarm is True:
                 curr_qpos = dps['qpos'][-1].cpu().numpy()
                 pad_qpos = np.zeros([self.planner.robot.dof - curr_qpos.shape[0]])
                 curr_qpos = np.concatenate([curr_qpos, pad_qpos])
@@ -135,6 +135,20 @@ class SpaceExplorer(nn.Module):
                     continue
                 else:
                     plan_results[qpos_idx] = result
+            elif self.total_cfg.use_xarm is False:
+                rest_pose = np.array( ## Avoid achieving franka emika panda joint limits, so use fractioning
+                                        [5.928617003472516e-05,
+                                        -0.7848036409260933,
+                                        -0.000308854746172659,
+                                        -2.357726806912310,
+                                        -0.00011798564528483742,
+                                        1.570464383098814,
+                                        0.7852387161304554,
+                                        0.3,
+                                        0.3]
+                                    )
+                target = (np.array(qpos) - rest_pose) / 2.3 + rest_pose
+                plan_results[qpos_idx] = {"position":target.tolist()}
             masks = []
             for cam_pose in tqdm.tqdm(history_cam_poses, leave=False, disable="PYCHARM_HOSTED" in os.environ):
                 rendered_mask = render_api.nvdiffrast_parallel_render_xarm_api(self.cfg.urdf_path,
@@ -142,6 +156,7 @@ class SpaceExplorer(nn.Module):
                                                                                qpos[:7] + [0, 0],
                                                                                height, width,
                                                                                to_array(K),
+                                                                               robot_type = 0,
                                                                                return_ndarray=False)
                 vis3d.add_image(rendered_mask)
                 masks.append(rendered_mask)
