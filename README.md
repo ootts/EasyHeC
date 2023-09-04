@@ -2,7 +2,7 @@
 
 ### [Project Page](https://ootts.github.io/easyhec) | [Paper](https://arxiv.org/abs/2305.01191)
 
-This project contains the implementation of our EasyHeC paper.
+This project contains the implementation of our RA-L paper.
 
 Authors: [Linghao Chen](https://ootts.github.io), [Yuzhe Qin](https://yzqin.github.io/), [Xiaowei Zhou](https://xzhou.me/), [Hao Su](http://ai.ucsd.edu/~haosu/).
 
@@ -36,7 +36,7 @@ If you find this code useful for your research, please use the following BibTeX 
 @article{chen2023easyhec,
   title={EasyHec: Accurate and Automatic Hand-eye Calibration via Differentiable Rendering and Space Exploration},
   author={Chen, Linghao and Qin, Yuzhe and Zhou, Xiaowei and Su, Hao},
-  journal={arXiv preprint}, 
+  journal={IEEE Robotics and Automation Letters (RA-L)}, 
   year={2023}
 }
 ```
