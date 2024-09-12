@@ -1,3 +1,4 @@
+import hashlib
 import os
 import os.path as osp
 import time
@@ -221,8 +222,14 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=str, default="")
     parser.add_argument("--dont_save", action="store_true")
     args = parser.parse_args()
+
+    print('Usage: drag mouse to draw bounding boxes. Ctrl+mouse to draw negative bounding boxes. Press "p" to switch to point mode, "b" to switch to box mode, "z" to undo, "r" to reset, "ESC" to finish.')
+
     i = 0
-    drawer = PromptDrawer(screen_scale=3.0, sam_checkpoint="third_party/segment_anything/sam_vit_h_4b8939.pth")
+    sam_checkpoint="third_party/segment_anything/sam_vit_h_4b8939.pth"
+    if not osp.exists(sam_checkpoint) or hashlib.md5(open(sam_checkpoint, 'rb').read()).hexdigest() != "4b8939a88964f0f4ff5f5b2642c598a6":
+        os.system('wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth -P third_party/segment_anything')
+    drawer = PromptDrawer(screen_scale=3.0, sam_checkpoint=sam_checkpoint)
     while i < len(args.img_paths):
         img_path = args.img_paths[i]
         rgb = imageio.imread_v2(img_path)[..., :3]
