@@ -1,3 +1,5 @@
+import cv2
+import os.path as osp
 import glob
 
 import imageio
@@ -31,7 +33,7 @@ class XarmRealDataset(torch.utils.data.Dataset):
             rgb = np.array(imageio.imread_v2(rgb_path))[..., :3]
             self.images.append(rgb)
         for mask_path in mask_paths:
-            mask = imageio.imread_v2(mask_path)[..., 0] > 0
+            mask = cv2.imread(mask_path, 2) > 0
             self.masks.append(mask)
         if len(self.masks) > 0:
             self.masks = np.stack(self.masks)
@@ -54,7 +56,11 @@ class XarmRealDataset(torch.utils.data.Dataset):
         self.link_poses = torch.from_numpy(self.link_poses).float()
         self.K = np.loadtxt(f"{data_dir}/K.txt")
         self.K = torch.from_numpy(self.K).float()
-        self.Tc_c2b = np.loadtxt(f"{data_dir}/Tc_c2b.txt")
+        Tc_c2b_path = f"{data_dir}/Tc_c2b.txt"
+        if osp.exists(Tc_c2b_path):
+            self.Tc_c2b = np.loadtxt(Tc_c2b_path)
+        else:
+            self.Tc_c2b = np.eye(4)
         self.Tc_c2b = torch.from_numpy(self.Tc_c2b).float()
 
     def __len__(self):

@@ -12,6 +12,7 @@ from dl_ext.timer import EvalTime
 from easyhec.config import cfg_xarm, cfg_franka
 from easyhec.engine.defaults import default_argument_parser
 from easyhec.trainer.build import build_trainer
+from easyhec.utils import plt_utils
 from easyhec.utils.comm import synchronize, get_rank
 from easyhec.utils.logger import setup_logger
 from easyhec.utils.os_utils import archive_runs, make_source_code_snapshot, deterministic
@@ -97,7 +98,12 @@ def main():
     logger.info("Running with config:\n{}".format(cfg))
     if cfg.deterministic is True and 'PYCHARM_HOSTED' in os.environ:
         deterministic()
-    train(cfg, local_rank, args.distributed, cfg.solver.resume)
+    trainer = train(cfg, local_rank, args.distributed, cfg.solver.resume)
+    preds = trainer.get_preds()
+
+    plt_utils.image_grid(preds[0]['error_maps'].cpu().numpy())
+    print("If the shown error map is small, the following result is good to use.")
+    print("Result Tc_c2b (opencv convention)", preds[0]['tsfm'])
 
 
 if __name__ == "__main__":

@@ -24,8 +24,8 @@ mplib
 screeninfo
 plyfile
 pycocotools
-moveit_commander
-rospy
+# moveit_commander
+# rospy
 git+https://github.com/NVlabs/nvdiffrast.git
 git+https://github.com/facebookresearch/segment-anything.git
 

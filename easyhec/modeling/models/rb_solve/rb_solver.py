@@ -90,5 +90,7 @@ class RBSolver(nn.Module):
                 "err_rot": rot_err
             }
             output["metrics"] = metrics
+        tsfm = utils_3d.se3_exp_map(self.dof[None].detach().cpu()).permute(0, 2, 1)[0]
+        output['tsfm'] = tsfm
         loss_dict = {"mask_loss": loss}
         return output, loss_dict

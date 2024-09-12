@@ -72,6 +72,10 @@ class PromptDrawer(object):
                 self.drawing = False
                 self.boxes[-1, 2] = x
                 self.boxes[-1, 3] = y
+                self.boxes[-1, 0], self.boxes[-1, 2] = min(self.boxes[-1, 0], self.boxes[-1, 2]), max(self.boxes[-1, 0],
+                                                                                                      self.boxes[-1, 2])
+                self.boxes[-1, 1], self.boxes[-1, 3] = min(self.boxes[-1, 1], self.boxes[-1, 3]), max(self.boxes[-1, 1],
+                                                                                                      self.boxes[-1, 3])
                 self.detect()
             elif event == cv2.EVENT_MOUSEMOVE:
                 if self.drawing:
@@ -172,6 +176,9 @@ class PromptDrawer(object):
             cv2.imshow(self.window_name, tmp)
             waittime = 50
             key = cv2.waitKey(waittime)
+            if key == 13:  # enter
+                self.mask = np.zeros([image_h, image_w], dtype=bool)
+                self.done = True
             if key == 27:  # ESC hit
                 self.done = True
             elif key == ord('r'):
@@ -194,6 +201,11 @@ class PromptDrawer(object):
                     self.box_labels = self.box_labels[:-1]
                     self.detect()
         cv2.destroyWindow(self.window_name)
+        # del self.predictor
+        # torch.cuda.empty_cache()
+        return None, None, self.mask
+
+    def close(self):
         del self.predictor
         torch.cuda.empty_cache()
         return None, None, self.mask
@@ -206,23 +218,24 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--img_paths", type=str, nargs="+", required=True)
+    parser.add_argument("--output_dir", type=str, default="")
+    parser.add_argument("--dont_save", action="store_true")
     args = parser.parse_args()
     i = 0
-    drawer = PromptDrawer(screen_scale=3.0,sam_checkpoint="../AAHeC_prerelease/models/sam/sam_vit_h_4b8939.pth")
+    drawer = PromptDrawer(screen_scale=3.0, sam_checkpoint="third_party/segment_anything/sam_vit_h_4b8939.pth")
     while i < len(args.img_paths):
         img_path = args.img_paths[i]
-        rgb = imageio.imread_v2(img_path)
-        mask, flag = drawer.run(rgb)
-        if flag == -1 and i > 0:
-            print("redo last image")
-            i -= 1
-        elif flag == 1 and i < len(args.img_paths) - 1:
-            print("skip this image")
-            i += 1
-        else:
-            print("Done")
-            imageio.imwrite(img_path[:-4] + "mask" + img_path[-4:], ((mask > 0) * 255).astype(np.uint8))
-            i += 1
+        rgb = imageio.imread_v2(img_path)[..., :3]
+        _, _, mask = drawer.run(rgb)
+        if mask is not None:
+            if not args.dont_save:
+                if args.output_dir == "":
+                    out_path = img_path[:-4] + "mask" + img_path[-4:]
+                else:
+                    out_path = osp.join(args.output_dir, osp.basename(img_path[:-4] + '.png'))
+                    os.makedirs(args.output_dir, exist_ok=True)
+                imageio.imwrite(out_path, ((mask > 0) * 255).astype(np.uint8))
+        i += 1
         drawer.reset()
     # rgb = imageio.imread_v2(args.img_path)
     # mask = PromptDrawer(screen_scale=3.0).run(rgb)

@@ -354,3 +354,41 @@ def calc_pts_diameter2(pts):
     dists = distance.cdist(pts, pts, 'euclidean')
     diameter = np.max(dists)
     return diameter
+
+
+def calc_pose_from_lookat(phis, thetas, size, radius=1.2):
+    """
+    :param phis: [B], north 0, south pi
+    :param thetas: [B]
+    :param size: int
+    return Tw_w2c
+    """
+    import torch
+    def normalize(vectors):
+        return vectors / (torch.norm(vectors, dim=-1, keepdim=True) + 1e-10)
+
+    device = torch.device('cpu')
+    thetas = torch.FloatTensor(thetas).to(device)
+    phis = torch.FloatTensor(phis).to(device)
+
+    centers = torch.stack([
+        radius * torch.sin(thetas) * torch.sin(phis),
+        -radius * torch.cos(thetas) * torch.sin(phis),
+        radius * torch.cos(phis),
+    ], dim=-1)  # [B, 3]
+
+    # lookat
+    forward_vector = normalize(centers)
+    up_vector = torch.FloatTensor([0, 0, 1]).to(device).unsqueeze(0).repeat(size, 1)
+    right_vector = normalize(torch.cross(up_vector, forward_vector, dim=-1))
+    if right_vector.pow(2).sum() < 0.01:
+        right_vector = torch.FloatTensor([0, 1, 0]).to(device).unsqueeze(0).repeat(size, 1)
+    up_vector = normalize(torch.cross(forward_vector, right_vector, dim=-1))
+
+    poses = torch.eye(4, dtype=torch.float, device=device).unsqueeze(0).repeat(size, 1, 1)
+    poses[:, :3, :3] = torch.stack((right_vector, up_vector, forward_vector), dim=-1)
+    poses[:, :3, 3] = centers
+    blender2opencv = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]], dtype=np.float32)
+    for i in range(len(poses)):
+        poses[i] = poses[i] @ blender2opencv
+    return poses

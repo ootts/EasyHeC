@@ -55,7 +55,7 @@ class RBSolverTrainer(BaseTrainer):
                 for k, v in loss_dict.items():
                     self.tb_writer.add_scalar(f'train/{k}', v.item(), self.global_steps)
                 self.tb_writer.add_scalar('train/lr', lr, self.global_steps)
-                if self.global_steps % 100 == 0 and self.cfg.dbg:
+                if self.global_steps % 100 == 0:
                     self.image_grid_on_tb_writer(output['rendered_masks'], self.tb_writer,
                                                  'train/rendered_masks', self.global_steps)
                     self.image_grid_on_tb_writer(output['ref_masks'], self.tb_writer,
@@ -98,11 +98,11 @@ class RBSolverTrainer(BaseTrainer):
         else:
             name = os.path.join(self.output_dir, 'model_iteration_%06d.pth' % self.global_steps)
         net_sd = self.model.module.state_dict() if hasattr(self.model, 'module') else self.model.state_dict()
-        if self.cfg.solver.pop_verts_faces:
-            net_sd = {k: v for k, v in net_sd.items() if 'vert' not in k and 'faces' not in k}
-        if self.cfg.solver.compress_history_ops and "history_ops" in net_sd:
-            keep = (net_sd["history_ops"] != 0).any(dim=1)
-            net_sd["history_ops"] = net_sd["history_ops"][keep]
+        # if hasattr(self,"cfg.solver.pop_verts_faces") and self.cfg.solver.pop_verts_faces:
+        #     net_sd = {k: v for k, v in net_sd.items() if 'vert' not in k and 'faces' not in k}
+        # if self.cfg.solver.compress_history_ops and "history_ops" in net_sd:
+        #     keep = (net_sd["history_ops"] != 0).any(dim=1)
+        #     net_sd["history_ops"] = net_sd["history_ops"][keep]
         d = {'model': net_sd,
              'epoch': epoch,
              'best_val_loss': self.best_val_loss,

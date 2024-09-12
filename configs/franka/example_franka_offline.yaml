@@ -1,0 +1,47 @@
+model:
+  meta_architecture: "RBSolver"
+  rbsolver:
+#    you may need to change this.
+    init_Tc_c2b: [ [ 9.3969262e-01 , 3.4202009e-01 , 6.4914198e-09 ,-6.4085639e-01 ],
+                   [ 1.7101002e-01 ,-4.6984622e-01 ,-8.6602539e-01 , 4.9582830e-01 ],
+                   [ -2.9619810e-01 , 8.1379771e-01, -4.9999991e-01,  1.2412001e+00 ],
+                   [ 0.0000000e+00  ,0.0000000e+00  ,0.0000000e+00 , 1.0000000e+00 ] ]
+    mesh_paths: [
+      "assets/franka/franka_description/meshes/visual/link0.dae",
+      "assets/franka/franka_description/meshes/visual/link1.dae",
+      "assets/franka/franka_description/meshes/visual/link2.dae",
+      "assets/franka/franka_description/meshes/visual/link3.dae",
+      "assets/franka/franka_description/meshes/visual/link4.dae",
+      "assets/franka/franka_description/meshes/visual/link5.dae",
+      "assets/franka/franka_description/meshes/visual/link6.dae",
+      "assets/franka/franka_description/meshes/visual/link7.dae",
+      "assets/franka/franka_description/meshes/visual/hand.dae",
+    ]
+    H: 480 # you may need to change this according to the image size.
+    W: 640
+datasets:
+  train: ("franka_real/franka/offline_example",) # this corresponds to data/franka/offline_example/
+  test: "franka_real/franka/offline_example"
+
+solver:
+  log_interval: 1
+  trainer: "rbsolver"
+  explore_iters: 10 # the number of iterations for exploration
+  num_epochs: 1000 # the number of iterations for optimization
+  max_lr: 0.003 # the learning rate for optimization
+  batch_size: 100 # a large number to make sure all the images are in one batch
+  save_freq: 20
+  val_freq: 20
+  save_every: True
+  save_mode: iteration
+dataset:
+  xarm_real:
+    use_links: [0,1,2,3,4,5,6,7,9]
+    urdf_path: "assets/franka/urdf/franka.urdf"
+input:
+  shuffle: False
+dataloader:
+  pin_memory: True
+test:
+  batch_size: 100
+

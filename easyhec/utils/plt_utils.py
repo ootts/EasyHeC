@@ -171,7 +171,8 @@ def vis_mask(img,
     """Visualizes a single binary mask."""
     if isinstance(mask, torch.Tensor):
         from easyhec.utils.pn_utils import to_array
-        mask = to_array(mask > 0).astype(np.uint8)
+        mask = to_array(mask > 0)
+    mask = mask.astype(np.uint8)
     img = img.astype(np.float32)
     idx = np.nonzero(mask)
 

@@ -38,6 +38,7 @@ class Vis3D(Wis3D):
         'blue': [2, 83, 255]
     }
     _xarm_sk = None
+    _franka_sk = None
 
     def __init__(self, xyz_pattern=None, out_folder='dbg',
                  sequence='sequence',
@@ -589,6 +590,60 @@ class Vis3D(Wis3D):
             sk = SAPIENKinematicsModelStandalone(urdf_path)
             Vis3D._xarm_sk = sk
         return Vis3D._xarm_sk
+
+    def add_franka(self, qpos, Tw_w2B=None, add_local_coord=False, name=""):
+        """
+
+        Parameters
+        ----------
+        qpos: 9-dim ndarray, radian
+        Tw_w2B: base in world
+        add_local_coord
+        name
+
+        Returns
+        -------
+
+        """
+        from easyhec.utils import utils_3d
+        from easyhec.utils.utils_3d import Rt_to_pose
+        if not self.enable: return
+        if Tw_w2B is None:
+            Tw_w2B = np.eye(4)
+        qpos = to_array(qpos)
+        sk = self.franka_sk
+        links = sk.robot.get_links()
+        num_links = len(links)
+        local_pts = np.array([[0, 0, 0],
+                              [1, 0, 0],
+                              [0, 1, 0],
+                              [0, 0, 1]]) * 0.05
+        for link in range(num_links):
+            link_name = links[link].name
+
+            pq = sk.compute_forward_kinematics(qpos, link)
+
+            pose = Rt_to_pose(transforms3d.quaternions.quat2mat(pq.q), pq.p)
+            from easyhec.structures.franka_mapping import link_name_mesh_path_mapping
+            mesh_path = link_name_mesh_path_mapping[link_name]
+            if mesh_path == "": continue
+            mesh = trimesh.load(mesh_path, force='mesh')
+            add_name = link_name if name == "" else name + "_" + link_name
+            self.add_mesh(utils_3d.transform_points(mesh.vertices, Tw_w2B @ pose), mesh.faces, name=add_name)
+            axis_in_base = utils_3d.transform_points(local_pts, Tw_w2B @ pose)
+            if add_local_coord:
+                self.add_lines(axis_in_base[0], axis_in_base[1], name=f'{link_name}_x')
+                self.add_lines(axis_in_base[0], axis_in_base[2], name=f'{link_name}_y')
+                self.add_lines(axis_in_base[0], axis_in_base[3], name=f'{link_name}_z')
+
+    @property
+    def franka_sk(self):
+        if Vis3D._franka_sk is None:
+            from easyhec.structures.sapien_kin import SAPIENKinematicsModelStandalone
+            urdf_path = os.path.abspath("assets/franka/urdf/franka.urdf")
+            sk = SAPIENKinematicsModelStandalone(urdf_path)
+            Vis3D._franka_sk = sk
+        return Vis3D._franka_sk
 
     def add_text(self, text):
         if not self.enable: return

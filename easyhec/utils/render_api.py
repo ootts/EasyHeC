@@ -12,6 +12,7 @@ from easyhec.structures.sapien_kin import SAPIENKinematicsModelStandalone
 from easyhec.utils.utils_3d import matrix_3x4_to_4x4, create_center_radius, transform_points
 from easyhec.structures.robot_mapping import robot_mapping
 
+
 class NVdiffrastRenderMeshApiHelper:
     _renderer = None
     H, W = None, None
@@ -101,13 +102,10 @@ class RenderXarmApiHelper:
     _urdf_path = None
 
     @staticmethod
-    def get_meshes(robot_type = 0):
+    def get_meshes():
         if RenderXarmApiHelper.meshes is None:
             RenderXarmApiHelper.meshes = {}
-            if robot_mapping[robot_type] == "Franka":
-                from easyhec.structures.franka_mapping import link_name_mesh_path_mapping
-            elif robot_mapping[robot_type] == "Xarm":
-                from easyhec.structures.xarm_mapping import link_name_mesh_path_mapping
+            from easyhec.structures.xarm_mapping import link_name_mesh_path_mapping
             for k, v in link_name_mesh_path_mapping.items():
                 if v != "":
                     RenderXarmApiHelper.meshes[k] = trimesh.load(v, force="mesh")
@@ -121,13 +119,36 @@ class RenderXarmApiHelper:
         return RenderXarmApiHelper.sk
 
 
-def nvdiffrast_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, robot_type = 1, return_ndarray=True):
-    xarm_meshes = RenderXarmApiHelper.get_meshes(robot_type=robot_type)
+class RenderFrankaApiHelper:
+    meshes = None
+    sk = None
+    _urdf_path = None
+
+    @staticmethod
+    def get_meshes():
+        if RenderFrankaApiHelper.meshes is None:
+            RenderFrankaApiHelper.meshes = {}
+            from easyhec.structures.franka_mapping import link_name_mesh_path_mapping
+            for k, v in link_name_mesh_path_mapping.items():
+                if v != "":
+                    RenderFrankaApiHelper.meshes[k] = trimesh.load(v, force="mesh")
+        return RenderFrankaApiHelper.meshes
+
+    @staticmethod
+    def get_sk(urdf_path):
+        if RenderFrankaApiHelper.sk is None or urdf_path != RenderFrankaApiHelper._urdf_path:
+            RenderFrankaApiHelper.sk = SAPIENKinematicsModelStandalone(urdf_path)
+            RenderFrankaApiHelper._urdf_path = urdf_path
+        return RenderFrankaApiHelper.sk
+
+
+def nvdiffrast_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, return_ndarray=True):
+    xarm_meshes = RenderXarmApiHelper.get_meshes()
     sk = RenderXarmApiHelper.get_sk(urdf_path)
     names = [link.name for link in sk.robot.get_links()]
     poses = []
     meshes = []
-    num = 8 if robot_mapping[robot_type] == "Xarm" else 7
+    num = 8
     for i in range(num):
         pose = robot_pose @ sk.compute_forward_kinematics(qpos, i + 1).to_transformation_matrix()
         mesh = xarm_meshes[names[i + 1]]
@@ -137,13 +158,31 @@ def nvdiffrast_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, robot_type 
     return mask
 
 
-def nvdiffrast_parallel_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, robot_type = 1, return_ndarray=True):
-    xarm_meshes = RenderXarmApiHelper.get_meshes(robot_type=robot_type)
+def nvdiffrast_render_franka_api(urdf_path, Tc_c2b, qpos, H, W, K, return_ndarray=True):
+    franka_meshes = RenderFrankaApiHelper.get_meshes()
+    sk = RenderFrankaApiHelper.get_sk(urdf_path)
+    names = [link.name for link in sk.robot.get_links()]
+    poses = []
+    meshes = []
+    num = 9
+    for i in range(num):
+        pose = Tc_c2b @ sk.compute_forward_kinematics(qpos, i).to_transformation_matrix()
+        if names[i] not in franka_meshes:
+            continue
+        mesh = franka_meshes[names[i]]
+        meshes.append(mesh)
+        poses.append(pose)
+    mask = nvdiffrast_render_meshes_api(meshes, poses, H, W, K, return_ndarray=return_ndarray)
+    return mask
+
+
+def nvdiffrast_parallel_render_xarm_api(urdf_path, robot_pose, qpos, H, W, K, return_ndarray=True):
+    xarm_meshes = RenderXarmApiHelper.get_meshes()
     sk = RenderXarmApiHelper.get_sk(urdf_path)
     names = [link.name for link in sk.robot.get_links()]
     poses = []
     meshes = []
-    num = 8 if robot_mapping[robot_type] == "Xarm" else 7
+    num = 8
     for i in range(num):
         pose = robot_pose @ sk.compute_forward_kinematics(qpos, i + 1).to_transformation_matrix()
         mesh = xarm_meshes[names[i + 1]]

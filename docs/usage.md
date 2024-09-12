@@ -70,4 +70,5 @@ python tools/run_easyhec.py -c configs/xarm7/example.yaml
 
 1. Before running it on Franka, you may need to read the [tutorial](https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html) here to have a more clear view of manipulating Franka in `ROS` and `MoveIt`.
 1. We initialize the camera pose by running [easy_handeye](https://github.com/IFL-CAMP/easy_handeye) in cope with `ROS` and `MoveIt`. After finishing the camera caliberating procedure, modify the initial camera pose in the [example_franka.yaml](../easyhec/config/defaults_franka.py#L130).
- 
+1. Offline franka solution: Running franka online may be complex, so we had added an offline solution to calibrate franka. Please refer to [franka_offline.md](franka_offline.md).
+

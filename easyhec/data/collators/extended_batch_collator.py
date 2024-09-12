@@ -1,8 +1,10 @@
 import collections
 
 import torch
-
-from torch._six import string_classes
+try:
+    from torch._six import string_classes
+except ImportError:
+    string_classes = (str, bytes)
 from torch.utils.data._utils.collate import np_str_obj_array_pattern, default_collate_err_msg_format
 
 
