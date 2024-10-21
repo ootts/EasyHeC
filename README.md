@@ -39,5 +39,11 @@ If you find this code useful for your research, please use the following BibTeX 
   journal={IEEE Robotics and Automation Letters (RA-L)}, 
   year={2023}
 }
+@article{hong2024easyhec++,
+  title={Fully Automatic Hand-Eye Calibration with Pretrained Image Models},
+  author={Hong, Zhengdong and Zheng, Kangfu and Chen, Linghao},
+  journal={International Conference on Intelligent Robots and Systems (IROS)},
+  year={2024}
+}
 ```
 
